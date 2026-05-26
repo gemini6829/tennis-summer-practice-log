@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Summer Practice Log 2026</title>
+  <style>
+    /* === Reset === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F1F8E9;
+      min-height: 100vh;
+    }
+
+    /* On desktop: center the app card */
+    @media (min-width: 560px) {
+      body {
+        background: #E8F5E9;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* let #app size itself by content, not stretch to viewport */
+        padding: 32px 16px;
+      }
+    }
+
+    #app {
+      width: 100%;
+      max-width: 480px;
+      background: #F1F8E9;
+      min-height: 100vh;
+    }
+
+    @media (min-width: 560px) {
+      #app {
+        min-height: unset;
+        border-radius: 24px;
+        box-shadow: 0 12px 48px rgba(0,0,0,0.14);
+        /* No overflow property — page scrolls naturally.
+           Nav bar gets its own border-radius to match the card corners. */
+      }
+      .nav-bar { border-radius: 24px 24px 0 0; }
+    }
+
+    /* === Screens === */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* === Nav bar (Log Practice + Analysis) === */
+    .nav-bar {
+      background: #2E7D32;
+      color: #fff;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-back {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 0 8px 0 0;
+      line-height: 1;
+      font-family: inherit;
+    }
+    .nav-title { flex: 1; font-size: 17px; font-weight: 700; text-align: center; }
+    .nav-spacer { width: 36px; }
+
+    /* === Card === */
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    /* === Field label === */
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #2E7D32;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    /* === Text inputs === */
+    .text-input {
+      width: 100%;
+      border: 1.5px solid #C8E6C9;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 16px;
+      color: #1B1B1B;
+      background: #FAFAFA;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .text-input:focus { border-color: #2E7D32; }
+    input[type="date"].text-input { cursor: pointer; }
+
+    .hint { font-size: 12px; color: #888; margin-top: 5px; }
+
+    /* === Primary button === */
+    .btn-primary {
+      display: block;
+      width: 100%;
+      background: #2E7D32;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 24px;
+      transition: opacity 0.15s;
+    }
+    .btn-primary:disabled { opacity: 0.6; cursor: default; }
+    .btn-primary:not(:disabled):hover { opacity: 0.88; }
+    .btn-primary.narrow { max-width: 280px; margin-left: auto; margin-right: auto; }
+
+    /* === Error box === */
+    .error-box {
+      background: #FFEBEE;
+      border: 1px solid #EF9A9A;
+      color: #C62828;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      margin-top: 14px;
+      display: none;
+    }
+    .error-box.show { display: block; }
+
+    /* === Spinner === */
+    .spinner {
+      width: 20px; height: 20px;
+      border: 3px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ======================================================== */
+    /* LOGIN SCREEN                                             */
+    /* ======================================================== */
+    #screen-login.active {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 32px 24px;
+    }
+    @media (min-width: 560px) {
+      #screen-login.active { min-height: 580px; }
+    }
+    .login-hero { text-align: center; margin-bottom: 32px; }
+    .login-hero h1 { font-size: 26px; font-weight: 800; color: #1B5E20; letter-spacing: 0.5px; }
+    .login-hero p { font-size: 14px; color: #558B2F; margin-top: 6px; }
+    .help-text { font-size: 13px; color: #888; text-align: center; margin-top: 20px; }
+
+    /* ======================================================== */
+    /* HOME SCREEN                                              */
+    /* ======================================================== */
+    #screen-home.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 48px 24px 36px;
+    }
+    @media (min-width: 560px) {
+      #screen-home.active { min-height: 580px; }
+    }
+    .home-title { font-size: 24px; font-weight: 800; color: #1B5E20; letter-spacing: 0.5px; text-align: center; margin-bottom: 8px; }
+    .home-greeting { font-size: 17px; color: #2E7D32; margin-bottom: 4px; }
+    .home-sub { font-size: 14px; color: #666; margin-bottom: 32px; }
+    .home-cards { width: 100%; }
+
+    .nav-card-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border: 1.5px solid #C8E6C9;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 14px;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+      transition: box-shadow 0.2s;
+      text-align: left;
+    }
+    .nav-card-btn:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.1); }
+    .nav-card-btn.alt { border-color: #A5D6A7; }
+    .nav-card-btn-text { flex: 1; }
+    .nav-card-btn-title { font-size: 16px; font-weight: 700; color: #1B5E20; }
+    .nav-card-btn-sub { font-size: 13px; color: #777; margin-top: 2px; }
+    .nav-card-btn-chevron { font-size: 28px; color: #A5D6A7; font-weight: 300; line-height: 1; }
+
+    .btn-logout {
+      background: none;
+      border: none;
+      color: #C62828;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 28px;
+      padding: 4px 0;
+    }
+
+    /* ======================================================== */
+    /* LOG PRACTICE SCREEN                                      */
+    /* ======================================================== */
+    .log-content { padding: 20px; }
+    .log-card-title { font-size: 18px; font-weight: 700; color: #1B5E20; margin-bottom: 4px; }
+
+    /* Timed type group */
+    .timed-group { margin-bottom: 10px; }
+
+    .type-row {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid #C8E6C9;
+      border-radius: 10px;
+      padding: 11px 14px;
+      background: #FAFAFA;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .type-row.active { border-color: #2E7D32; background: #F1F8E9; }
+    .type-row-label { flex: 1; font-size: 15px; color: #333; }
+
+    .hour-select {
+      border: 1.5px solid #C8E6C9;
+      border-radius: 8px;
+      padding: 6px 8px;
+      min-width: 88px;
+      background: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      color: #888;
+      cursor: pointer;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .hour-select.active { border-color: #2E7D32; color: #2E7D32; background: #E8F5E9; }
+
+    .detail-textarea {
+      display: block;
+      width: 100%;
+      border: 1.5px solid #E0E0E0;
+      border-top: none;
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+      padding: 9px 14px;
+      font-size: 14px;
+      color: #1B1B1B;
+      background: #F7F7F7;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 44px;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .detail-textarea:disabled { color: #C0C0C0; cursor: not-allowed; }
+    .detail-textarea.active { border-color: #A5D6A7; background: #FAFAFA; color: #1B1B1B; }
+    .detail-textarea.required { border-color: #EF9A9A; background: #FFF5F5; }
+
+    /* Checkbox row */
+    .cb-row {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid #C8E6C9;
+      border-radius: 10px;
+      padding: 11px 14px;
+      background: #FAFAFA;
+      margin-bottom: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .cb-row.checked { border-color: #2E7D32; background: #F1F8E9; }
+
+    .cb-box {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      border: 2px solid #A5D6A7;
+      display: flex; align-items: center; justify-content: center;
+      background: #fff;
+      flex-shrink: 0;
+      font-size: 12px;
+      font-weight: 700;
+      color: transparent;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .cb-box.checked { background: #2E7D32; border-color: #2E7D32; color: #fff; }
+
+    .cb-row-label { flex: 1; font-size: 15px; color: #333; margin-left: 10px; }
+
+    .cb-hrs-badge {
+      border: 1.5px solid #C8E6C9;
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      background: #fff;
+      transition: all 0.15s;
+    }
+    .cb-row.checked .cb-hrs-badge { border-color: #2E7D32; background: #E8F5E9; color: #2E7D32; }
+
+    .total-row { text-align: right; margin-top: 6px; margin-bottom: 2px; font-size: 13px; font-weight: 700; color: #2E7D32; }
+    .log-footer { text-align: center; font-size: 12px; color: #888; margin-top: 20px; margin-bottom: 8px; }
+
+    /* ======================================================== */
+    /* CONGRATULATIONS SCREEN                                   */
+    /* ======================================================== */
+    #screen-congrats.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 32px;
+      text-align: center;
+    }
+    @media (min-width: 560px) {
+      #screen-congrats.active { min-height: 580px; }
+    }
+    .congrats-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: #2E7D32;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 28px;
+    }
+    .congrats-title { font-size: 28px; font-weight: 800; color: #1B5E20; margin-bottom: 12px; }
+    .congrats-hours { font-size: 18px; color: #2E7D32; font-weight: 600; margin-bottom: 6px; }
+    .congrats-date { font-size: 14px; color: #888; margin-bottom: 40px; }
+
+    /* ======================================================== */
+    /* ANALYSIS SCREEN                                          */
+    /* ======================================================== */
+    .analysis-content { padding: 20px; }
+    .analysis-section-label {
+      font-size: 12px; font-weight: 700; color: #2E7D32;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+    .weekly-big { font-size: 38px; font-weight: 800; color: #1B5E20; line-height: 1; }
+    .weekly-sub { font-size: 14px; color: #558B2F; margin: 4px 0 12px; }
+    .pct-msg { font-size: 15px; color: #333; margin-bottom: 12px; }
+    .pct-bar-bg { width: 100%; height: 10px; background: #C8E6C9; border-radius: 5px; overflow: hidden; }
+    .pct-bar-fill { height: 100%; background: #2E7D32; border-radius: 5px; width: 0%; transition: width 0.7s ease; }
+
+    .chart-card { margin-top: 16px; margin-bottom: 20px; }
+    #analysis-chart { display: block; width: 100%; }
+    .no-data-msg { text-align: center; color: #888; font-size: 14px; padding: 20px 0; display: none; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ======================================================== -->
+  <!-- LOGIN                                                    -->
+  <!-- ======================================================== -->
+  <div id="screen-login" class="screen">
+    <div class="login-hero">
+      <h1>Summer Practice Log 2026</h1>
+      <p>Log your practice. Track your progress.</p>
+    </div>
+    <div class="card">
+      <label class="field-label" for="login-name">Your First Name</label>
+      <input class="text-input" type="text" id="login-name"
+        placeholder="Enter your first name"
+        autocomplete="given-name" autocorrect="off" autocapitalize="words" />
+      <div class="error-box" id="login-error"></div>
+      <button class="btn-primary" id="login-btn" onclick="handleLogin()">Log In</button>
+    </div>
+    <p class="help-text">Not on the list? Ask your coach to add your name to the log.</p>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- HOME                                                     -->
+  <!-- ======================================================== -->
+  <div id="screen-home" class="screen">
+    <p class="home-title">Summer Practice Log 2026</p>
+    <p class="home-greeting">Hi, <strong id="home-name"></strong>!</p>
+    <p class="home-sub">What would you like to do?</p>
+    <div class="home-cards">
+      <button class="nav-card-btn" onclick="showLogPractice()">
+        <div class="nav-card-btn-text">
+          <div class="nav-card-btn-title">Log Practice Hours</div>
+          <div class="nav-card-btn-sub">Record today's training session</div>
+        </div>
+        <span class="nav-card-btn-chevron">›</span>
+      </button>
+      <button class="nav-card-btn alt" onclick="showAnalysis()">
+        <div class="nav-card-btn-text">
+          <div class="nav-card-btn-title">View My Analysis</div>
+          <div class="nav-card-btn-sub">See your stats and team ranking</div>
+        </div>
+        <span class="nav-card-btn-chevron">›</span>
+      </button>
+    </div>
+    <button class="btn-logout" onclick="handleLogout()">Log out</button>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- LOG PRACTICE                                             -->
+  <!-- ======================================================== -->
+  <div id="screen-log" class="screen">
+    <div class="nav-bar">
+      <button class="nav-back" onclick="showScreen('home')">‹</button>
+      <span class="nav-title">Log Practice</span>
+      <span class="nav-spacer"></span>
+    </div>
+    <div class="log-content">
+      <div class="card">
+        <p class="log-card-title">Log Today's Practice</p>
+
+        <label class="field-label" for="log-date">Date</label>
+        <input class="text-input" type="date" id="log-date" />
+        <p class="hint" id="date-hint"></p>
+
+        <label class="field-label">Practice Hours</label>
+        <div id="timed-container"></div>
+        <div id="cb-container"></div>
+
+        <div class="total-row" id="total-row" style="display:none;"></div>
+        <div class="error-box" id="log-error"></div>
+        <button class="btn-primary" id="log-btn" onclick="handleSubmit()">Submit Practice Log</button>
+      </div>
+      <p class="log-footer">Your log is saved to the team Google Sheet automatically.</p>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- CONGRATULATIONS                                          -->
+  <!-- ======================================================== -->
+  <div id="screen-congrats" class="screen">
+    <div class="congrats-circle">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 20L17 29L32 12" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <p class="congrats-title">Session Logged!</p>
+    <p class="congrats-hours" id="congrats-hours"></p>
+    <p class="congrats-date" id="congrats-date"></p>
+    <button class="btn-primary narrow" onclick="showScreen('home')">Back to Home</button>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- ANALYSIS                                                 -->
+  <!-- ======================================================== -->
+  <div id="screen-analysis" class="screen">
+    <div class="nav-bar">
+      <button class="nav-back" onclick="showScreen('home')">‹</button>
+      <span class="nav-title">My Analysis</span>
+      <span class="nav-spacer"></span>
+    </div>
+    <div class="analysis-content">
+      <div class="card">
+        <p class="analysis-section-label">This Week</p>
+        <p class="weekly-big" id="analysis-weekly-hours">—</p>
+        <p class="weekly-sub">hours practiced this week</p>
+        <p class="pct-msg" id="analysis-pct-msg">Loading...</p>
+        <div class="pct-bar-bg">
+          <div class="pct-bar-fill" id="analysis-pct-bar"></div>
+        </div>
+      </div>
+      <div class="card chart-card">
+        <p class="analysis-section-label">Last 30 Days</p>
+        <canvas id="analysis-chart"></canvas>
+        <p class="no-data-msg" id="analysis-no-data">No data for the last 30 days.</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<script>
+// ============================================================
+// CONFIG — update this URL after each new Google Apps Script deployment
+// ============================================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbwVGkaB5gTxTh7wGQPqcuABss5uhF8PtpyJb497eBxW6H1eL9sE7vtGq_vRTW8Gyxg/exec';
+
+// ============================================================
+// Practice type definitions (mirrors the React Native app)
+// ============================================================
+const TIMED_TYPES = [
+  { label: 'Private Lesson',   value: 'Private Lesson',   placeholder: 'Coach and/or location' },
+  { label: 'Group Lesson',     value: 'Group Lesson',     placeholder: 'Coach and/or location' },
+  { label: 'Fitness Training', value: 'Fitness Training', placeholder: 'Coach and/or location' },
+  { label: 'Tournament',       value: 'Tournament',       placeholder: 'Level and location' },
+  { label: 'Hitting',          value: 'Hitting',          placeholder: 'Partner and/or location' },
+  { label: 'Other',            value: 'Other',            placeholder: 'Other details' },
+];
+
+const CHECKBOX_TYPES = [
+  { label: 'School Practice', value: 'School Practice', fixedHours: 2 },
+  { label: 'Out of Town',     value: 'Out of Town',     fixedHours: 0 },
+  { label: 'Sick',            value: 'Sick',            fixedHours: 0 },
+  { label: 'Bad Weather',     value: 'Bad Weather',     fixedHours: 0 },
+  { label: 'Rest Day',        value: 'Rest Day',        fixedHours: 0 },
+];
+
+const HOUR_OPTIONS = Array.from({ length: 17 }, (_, i) => +(i * 0.5).toFixed(1));
+
+// ============================================================
+// State
+// ============================================================
+let currentUser = null;
+
+// ============================================================
+// Utilities
+// ============================================================
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function fmtHrs(h) {
+  if (h === 0) return '0 hrs';
+  if (h === 1) return '1 hr';
+  return `${h} hrs`;
+}
+
+async function post(body) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function hideErr(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+// ============================================================
+// Navigation
+// ============================================================
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ============================================================
+// Init
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  try {
+    const stored = localStorage.getItem('loggedInUser');
+    if (stored) {
+      currentUser = JSON.parse(stored);
+      showHome();
+    } else {
+      showScreen('login');
+    }
+  } catch {
+    showScreen('login');
+  }
+
+  document.getElementById('login-name').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+  });
+});
+
+// ============================================================
+// LOGIN
+// ============================================================
+async function handleLogin() {
+  const input = document.getElementById('login-name');
+  const btn   = document.getElementById('login-btn');
+  const name  = input.value.trim();
+  hideErr('login-error');
+
+  if (!name) {
+    showErr('login-error', 'Please enter your first name.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const result = await post({ action: 'login', name });
+    if (result.success) {
+      currentUser = result.user;
+      localStorage.setItem('loggedInUser', JSON.stringify(currentUser));
+      input.value = '';
+      showHome();
+    } else {
+      showErr('login-error', result.message || 'Name not found. Contact your coach to be added to the log.');
+    }
+  } catch {
+    showErr('login-error', 'Could not reach the server. Check your connection.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Log In';
+  }
+}
+
+// ============================================================
+// HOME
+// ============================================================
+function showHome() {
+  document.getElementById('home-name').textContent = currentUser.name;
+  showScreen('home');
+}
+
+function handleLogout() {
+  if (confirm('Are you sure you want to log out?')) {
+    localStorage.removeItem('loggedInUser');
+    currentUser = null;
+    showScreen('login');
+  }
+}
+
+// ============================================================
+// LOG PRACTICE — build UI
+// ============================================================
+function showLogPractice() {
+  // Reset submit button in case it was left in loading state
+  const logBtn = document.getElementById('log-btn');
+  logBtn.disabled = false;
+  logBtn.textContent = 'Submit Practice Log';
+
+  // Build timed types
+  const timedContainer = document.getElementById('timed-container');
+  timedContainer.innerHTML = '';
+  TIMED_TYPES.forEach(pt => {
+    const group = document.createElement('div');
+    group.className = 'timed-group';
+
+    const row = document.createElement('div');
+    row.className = 'type-row';
+    row.id = 'trow-' + pt.value;
+
+    const lbl = document.createElement('span');
+    lbl.className = 'type-row-label';
+    lbl.textContent = pt.label;
+
+    const sel = document.createElement('select');
+    sel.className = 'hour-select';
+    sel.id = 'hrs-' + pt.value;
+    HOUR_OPTIONS.forEach(h => {
+      const opt = document.createElement('option');
+      opt.value = h;
+      opt.textContent = h === 0 ? '0 hrs' : h === 1 ? '1 hr' : h + ' hrs';
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change', () => onHoursChange(pt));
+
+    row.appendChild(lbl);
+    row.appendChild(sel);
+
+    const ta = document.createElement('textarea');
+    ta.className = 'detail-textarea';
+    ta.id = 'det-' + pt.value;
+    ta.placeholder = 'Select hours above to add details';
+    ta.disabled = true;
+    ta.rows = 2;
+    ta.addEventListener('input', updateTotal);
+
+    group.appendChild(row);
+    group.appendChild(ta);
+    timedContainer.appendChild(group);
+  });
+
+  // Build checkboxes
+  const cbContainer = document.getElementById('cb-container');
+  cbContainer.innerHTML = '';
+  CHECKBOX_TYPES.forEach(t => {
+    const row = document.createElement('div');
+    row.className = 'cb-row';
+    row.id = 'cbrow-' + t.value;
+    row.onclick = () => toggleCb(t.value);
+
+    const box = document.createElement('div');
+    box.className = 'cb-box';
+    box.id = 'cbbox-' + t.value;
+
+    const lbl = document.createElement('span');
+    lbl.className = 'cb-row-label';
+    lbl.textContent = t.label;
+
+    const badge = document.createElement('span');
+    badge.className = 'cb-hrs-badge';
+    badge.textContent = t.fixedHours > 0 ? t.fixedHours + ' hrs' : '0 hrs';
+
+    row.appendChild(box);
+    row.appendChild(lbl);
+    row.appendChild(badge);
+    cbContainer.appendChild(row);
+  });
+
+  // Set date
+  const today = todayStr();
+  const dateInput = document.getElementById('log-date');
+  dateInput.value = today;
+  document.getElementById('date-hint').textContent = 'Today: ' + today;
+  dateInput.onchange = function () {
+    document.getElementById('date-hint').textContent =
+      this.value === today ? 'Today: ' + today : 'Logging for: ' + this.value;
+  };
+
+  hideErr('log-error');
+  updateTotal();
+  showScreen('log');
+}
+
+function onHoursChange(pt) {
+  const sel    = document.getElementById('hrs-' + pt.value);
+  const ta     = document.getElementById('det-' + pt.value);
+  const row    = document.getElementById('trow-' + pt.value);
+  const active = parseFloat(sel.value) > 0;
+
+  row.classList.toggle('active', active);
+  sel.classList.toggle('active', active);
+  ta.disabled = !active;
+  ta.classList.toggle('active', active);
+  ta.classList.remove('required');
+
+  if (active) {
+    ta.placeholder = pt.placeholder;
+  } else {
+    ta.placeholder = 'Select hours above to add details';
+    ta.value = '';
+  }
+  updateTotal();
+}
+
+function toggleCb(value) {
+  const row     = document.getElementById('cbrow-' + value);
+  const box     = document.getElementById('cbbox-' + value);
+  const checked = !row.classList.contains('checked');
+  row.classList.toggle('checked', checked);
+  box.classList.toggle('checked', checked);
+  box.textContent = checked ? '✓' : '';
+  updateTotal();
+}
+
+function getTimedTotal() {
+  return TIMED_TYPES.reduce((s, t) => s + parseFloat(document.getElementById('hrs-' + t.value)?.value || 0), 0);
+}
+
+function getCbTotal() {
+  return CHECKBOX_TYPES.reduce((s, t) => {
+    const checked = document.getElementById('cbrow-' + t.value)?.classList.contains('checked');
+    return s + (checked ? t.fixedHours : 0);
+  }, 0);
+}
+
+function updateTotal() {
+  const total = getTimedTotal() + getCbTotal();
+  const row   = document.getElementById('total-row');
+  if (total > 0) {
+    row.style.display = 'block';
+    row.textContent = 'Total: ' + fmtHrs(total);
+  } else {
+    row.style.display = 'none';
+  }
+}
+
+function buildContent() {
+  const parts = [];
+  TIMED_TYPES.forEach(t => {
+    const h = parseFloat(document.getElementById('hrs-' + t.value).value);
+    if (h > 0) {
+      const hStr = h === 1 ? '1 hr' : h + ' hrs';
+      const det  = document.getElementById('det-' + t.value).value.trim();
+      parts.push(hStr + ' ' + det);
+    }
+  });
+  CHECKBOX_TYPES.forEach(t => {
+    if (document.getElementById('cbrow-' + t.value).classList.contains('checked')) {
+      parts.push(t.fixedHours > 0
+        ? t.fixedHours + ' hrs ' + t.value.toLowerCase()
+        : t.value);
+    }
+  });
+  return parts.join(', ');
+}
+
+// ============================================================
+// LOG PRACTICE — submit
+// ============================================================
+async function handleSubmit() {
+  hideErr('log-error');
+
+  const anyTimed = TIMED_TYPES.some(t => parseFloat(document.getElementById('hrs-' + t.value).value) > 0);
+  const anyCb    = CHECKBOX_TYPES.some(t => document.getElementById('cbrow-' + t.value).classList.contains('checked'));
+
+  if (!anyTimed && !anyCb) {
+    showErr('log-error', 'Please log at least one practice activity.');
+    return;
+  }
+
+  for (const t of TIMED_TYPES) {
+    const h   = parseFloat(document.getElementById('hrs-' + t.value).value);
+    const det = document.getElementById('det-' + t.value).value.trim();
+    if (h > 0 && !det) {
+      const ta = document.getElementById('det-' + t.value);
+      ta.classList.add('required');
+      showErr('log-error', 'Please add details for ' + t.label + '.');
+      ta.focus();
+      return;
+    }
+  }
+
+  await doSubmit(false);
+}
+
+async function doSubmit(override) {
+  const btn  = document.getElementById('log-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+  hideErr('log-error');
+
+  const date  = document.getElementById('log-date').value;
+  const total = getTimedTotal() + getCbTotal();
+
+  try {
+    const result = await post({
+      action: 'logPractice',
+      name: currentUser.name,
+      date,
+      practiceType: buildContent(),
+      hours: total,
+      override,
+    });
+
+    if (result.success) {
+      document.getElementById('congrats-hours').textContent =
+        total > 0 ? fmtHrs(total) + ' logged' : 'Session logged';
+      document.getElementById('congrats-date').textContent = date;
+      showScreen('congrats');
+    } else if (result.duplicate) {
+      btn.disabled = false;
+      btn.textContent = 'Submit Practice Log';
+      if (confirm('You already have a log for ' + date + '.\n\nOverride the previous entry?')) {
+        await doSubmit(true);
+      }
+    } else {
+      showErr('log-error', result.message || 'Something went wrong. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Submit Practice Log';
+    }
+  } catch {
+    showErr('log-error', 'Could not reach the server. Check your connection.');
+    btn.disabled = false;
+    btn.textContent = 'Submit Practice Log';
+  }
+}
+
+// ============================================================
+// ANALYSIS
+// ============================================================
+async function showAnalysis() {
+  showScreen('analysis');
+  document.getElementById('analysis-weekly-hours').textContent = '—';
+  document.getElementById('analysis-pct-msg').textContent = 'Loading...';
+  document.getElementById('analysis-pct-bar').style.width = '0%';
+
+  try {
+    const result = await post({ action: 'getAnalysis', name: currentUser.name });
+    if (!result.success) throw new Error('API error');
+
+    const { weeklyHours, percentile, memberDailyData } = result;
+
+    document.getElementById('analysis-weekly-hours').textContent = fmtHrs(weeklyHours);
+
+    let msg;
+    if (weeklyHours === 0) {
+      msg = 'No hours logged yet this week.';
+    } else if (percentile === 100) {
+      msg = "You're #1 on the team this week!";
+    } else if (percentile >= 75) {
+      msg = "You're in the top " + (100 - percentile) + "% of the team this week!";
+    } else if (percentile >= 50) {
+      msg = 'Above average this week — ' + percentile + 'th percentile.';
+    } else if (percentile >= 25) {
+      msg = 'Keep it up — ' + percentile + 'th percentile this week.';
+    } else {
+      msg = 'Time to step it up — ' + percentile + 'th percentile this week.';
+    }
+    document.getElementById('analysis-pct-msg').textContent = msg;
+    document.getElementById('analysis-pct-bar').style.width = percentile + '%';
+
+    if (memberDailyData && memberDailyData.length > 0) {
+      document.getElementById('analysis-no-data').style.display = 'none';
+      requestAnimationFrame(() => drawChart(memberDailyData));
+    } else {
+      document.getElementById('analysis-no-data').style.display = 'block';
+    }
+  } catch (err) {
+    console.error(err);
+    document.getElementById('analysis-weekly-hours').textContent = '—';
+    document.getElementById('analysis-pct-msg').textContent = 'Could not load data. Try again.';
+  }
+}
+
+function drawChart(data) {
+  const canvas = document.getElementById('analysis-chart');
+  const dpr    = window.devicePixelRatio || 1;
+  const PAD    = { top: 16, right: 16, bottom: 30, left: 34 };
+  const H      = 180;
+  const n      = data.length;
+
+  // Use the canvas's own rendered width (respects the card's padding correctly)
+  const W = canvas.getBoundingClientRect().width || canvas.parentElement.clientWidth - 48 || 300;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx  = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  const cW   = W - PAD.left - PAD.right;
+  const cH   = H - PAD.top  - PAD.bottom;
+  const maxH = Math.max(...data.map(d => d.hours), 1);
+
+  const xOf = i => PAD.left + (n <= 1 ? cW / 2 : (i / (n - 1)) * cW);
+
+  // Grid lines + Y-axis labels
+  ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD.top + cH - (i / 4) * cH;
+    ctx.strokeStyle = '#E8F5E9';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + cW, y); ctx.stroke();
+    ctx.fillStyle = '#A5D6A7';
+    ctx.textAlign = 'right';
+    ctx.fillText(+(maxH * i / 4).toFixed(1), PAD.left - 5, y + 4);
+  }
+
+  // X-axis labels: figure out how many labels fit without overlapping (each label ~30px wide)
+  const maxLabels  = Math.max(2, Math.floor(cW / 30));
+  const labelEvery = Math.ceil((n - 1) / (maxLabels - 1));
+  ctx.fillStyle = '#A5D6A7';
+  ctx.textAlign = 'center';
+  ctx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
+  data.forEach((d, i) => {
+    if (i === 0 || i === n - 1 || (labelEvery > 0 && i % labelEvery === 0)) {
+      const parts = d.date.split('-');
+      ctx.fillText(parseInt(parts[1]) + '/' + parseInt(parts[2]), xOf(i), H - PAD.bottom + 14);
+    }
+  });
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = '#2E7D32';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.lineCap  = 'round';
+  data.forEach((d, i) => {
+    const x = xOf(i);
+    const y = PAD.top + cH - (d.hours / maxH) * cH;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Dots — shrink slightly when there are many points
+  const dotR = n > 20 ? 3 : 4.5;
+  data.forEach((d, i) => {
+    const x = xOf(i);
+    const y = PAD.top + cH - (d.hours / maxH) * cH;
+    ctx.beginPath();
+    ctx.arc(x, y, dotR, 0, Math.PI * 2);
+    ctx.fillStyle   = d.hours > 0 ? '#2E7D32' : '#C8E6C9';
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth   = 1.5;
+    ctx.fill();
+    ctx.stroke();
+  });
+}
+</script>
+</body>
+</html>

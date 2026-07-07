@@ -1,100 +1,122 @@
-# Tennis Tracker — Setup Guide
+# Summer Practice Log 2026 — Setup Guide
 
 Follow these steps in order. The whole setup takes about 15–20 minutes.
 
 ---
 
-## PART 1 — Set Up Your Google Sheet & Backend Script
+## PART 1 — Google Sheet & Backend (Required for Both Versions)
 
 ### Step 1: Create a Google Sheet
 
 1. Go to [sheets.google.com](https://sheets.google.com) and create a **New Spreadsheet**.
-2. Name it something like **"Tennis Tracker"**.
+2. Name it something like **"Summer Practice Log 2026"**.
 3. Copy the **Spreadsheet ID** from the URL:
    - The URL looks like: `https://docs.google.com/spreadsheets/d/`**`1aBcDeFgHiJkLmNoPqRsTuVwXyZ`**`/edit`
    - The bold part between `/d/` and `/edit` is your ID.
 4. Keep this tab open — you'll come back to it.
 
-> The script will automatically create two sheets: **"Users"** and **"Practice Logs"** the first time they're needed.
-
 ---
 
 ### Step 2: Open the Apps Script Editor
 
-1. In your Google Sheet, click the menu: **Extensions → Apps Script**.
-2. A new tab opens with a code editor showing a default `myFunction`.
+1. In your Google Sheet, click **Extensions → Apps Script**.
+2. A new tab opens with a code editor.
 
 ---
 
-### Step 3: Paste in the Backend Code
+### Step 3: Paste the Backend Code
 
-1. **Delete all** the existing code in the editor.
-2. Open the file `google-apps-script/Code.gs` from this project.
-3. **Copy all of it** and paste it into the Apps Script editor.
+1. Delete all existing code in the editor.
+2. Open `google-apps-script/Code.gs` from this project and copy all of it.
+3. Paste it into the Apps Script editor.
 4. Find this line near the top:
    ```javascript
    const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID';
    ```
 5. Replace `YOUR_SPREADSHEET_ID` with the ID you copied in Step 1.
-6. Click the **💾 Save** button (or press Ctrl+S / Cmd+S).
+6. Save (Ctrl+S / Cmd+S).
 
 ---
 
 ### Step 4: Deploy as a Web App
 
 1. Click **Deploy → New deployment**.
-2. Click the gear icon ⚙️ next to "Select type" and choose **Web app**.
-3. Fill in the settings:
-   - **Description:** Tennis Tracker API
-   - **Execute as:** Me (your Google account)
+2. Click the gear icon next to "Select type" and choose **Web app**.
+3. Set the following:
+   - **Execute as:** Me
    - **Who has access:** Anyone
-4. Click **Deploy**.
-5. Google will ask you to **authorize** the app — click through and allow access.
-6. After deploying, you'll see a **Web app URL**. It looks like:
+4. Click **Deploy** and authorize when prompted.
+5. Copy the **Web app URL** — it looks like:
    ```
    https://script.google.com/macros/s/AKfycb.../exec
    ```
-7. **Copy this URL** — you'll need it in Part 2.
 
-> ⚠️ Any time you change the Code.gs script, you must create a **new deployment** (not update — create new) to apply the changes. Then update the URL in the app.
-
----
-
-## PART 2 — Set Up the React Native App
-
-### Step 5: Install Prerequisites
-
-If you don't have these installed, install them first:
-
-1. **Node.js** — Download from [nodejs.org](https://nodejs.org) (LTS version).
-2. **Expo Go app on your iPhone** — Search "Expo Go" in the App Store and install it.
+> **Important:** Any time you edit `Code.gs`, you must create a **new deployment** (not update existing) and replace the URL in both versions.
 
 ---
 
-### Step 6: Add Your Script URL to the App
+### Step 5: Add Members to the Roster
 
-1. Open the file `src/services/api.js` in a text editor.
-2. Find this line:
+1. In your Google Sheet, open the **Users** tab (created automatically on first login).
+2. Add each member's first name in column A, one per row.
+3. Members log in using exactly this name — spelling and capitalisation must match.
+
+> If two members share a first name, add a last initial for both (e.g. "Alex J" and "Alex T").
+
+---
+
+## PART 2 — Web Version (`web/`)
+
+### Step 6: Add the Script URL
+
+1. Open `web/index.html` in a text editor.
+2. Near the top of the `<script>` block, find:
    ```javascript
-   const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL';
+   const API_URL = '...';
    ```
-3. Replace the placeholder with the Web App URL you copied in Step 4.
+3. Replace the URL with the one you copied in Step 4.
 4. Save the file.
 
 ---
 
-### Step 7: Install Dependencies & Start the App
+### Step 7: Deploy to Netlify
 
-Open a **Terminal** (Mac) or **Command Prompt** (Windows), navigate to the `tennis-tracker` folder, and run:
+1. Go to [netlify.com/drop](https://netlify.com/drop).
+2. Drag and drop `web/index.html` onto the page.
+3. Netlify gives you a URL instantly — share this with your team.
+
+To update the site later (e.g. after a new Apps Script deployment), drag and drop the updated file onto your site's Netlify dashboard.
+
+---
+
+## PART 3 — App Version (`app/`)
+
+### Step 8: Install Prerequisites
+
+- **Node.js** — Download from [nodejs.org](https://nodejs.org) (LTS version).
+- **Expo Go** — Install from the App Store on the team's iPhones.
+
+---
+
+### Step 9: Add the Script URL
+
+1. Open `app/src/services/api.js` in a text editor.
+2. Find:
+   ```javascript
+   const SCRIPT_URL = '...';
+   ```
+3. Replace the URL with the one you copied in Step 4.
+4. Save the file.
+
+---
+
+### Step 10: Install Dependencies & Start the App
+
+Open a Terminal, navigate to the `app/` folder, and run:
 
 ```bash
-# Navigate to the project folder
-cd path/to/tennis-tracker
-
-# Install all dependencies
+cd path/to/TennisProject/app
 npm install
-
-# Start the development server
 npx expo start
 ```
 
@@ -102,58 +124,56 @@ A QR code will appear in your terminal.
 
 ---
 
-### Step 8: Open on Your iPhone
+### Step 11: Open on iPhone
 
-1. Open the **Camera app** on your iPhone and point it at the QR code.
-2. Tap the notification that appears to open in **Expo Go**.
-3. The app will load on your phone!
+1. Open the **Camera app** and point it at the QR code.
+2. Tap the notification to open in **Expo Go**.
 
-> Make sure your iPhone and computer are on the **same Wi-Fi network**.
+> Your iPhone and computer must be on the **same Wi-Fi network**.
 
 ---
 
-## PART 3 — Distributing to Your Team
+### Distributing the App to the Team
 
-Once the app is working, your teammates can run it on their phones in one of two ways:
-
-**Option A — Development (easiest, for small teams):**
-- Share the QR code with teammates.
-- Everyone installs **Expo Go** on their iPhone.
-- Open the QR code — they're in!
+**Option A — Easiest (requires Expo Go):**
+Share the QR code. Teammates install Expo Go and scan it.
 
 **Option B — Standalone app (no Expo Go needed):**
-- This requires an Apple Developer account ($99/year) and Xcode on a Mac.
-- Run `npx eas build --platform ios` and follow the Expo EAS build guide.
-- This creates a real `.ipa` file you can share via TestFlight.
+Requires an Apple Developer account ($99/year). Run `npx eas build --platform ios` and distribute via TestFlight.
 
 ---
 
-## How the Data Looks in Google Sheets
+## How Data Is Stored in Google Sheets
 
-### "Users" sheet (columns: Name, Email, Phone, Password, Registered At)
-| Name       | Email           | Phone        | Password  | Registered At     |
-|------------|-----------------|--------------|-----------|-------------------|
-| Alex Jones | alex@email.com  | 5551234567   | tennis123 | 2024-01-15 9:30am |
+### Users tab
+| Name  |
+|-------|
+| Alex  |
+| Jamie |
 
-### "Practice Logs" sheet (columns: Member Name, Date, Practice Type, Hours, Details, Logged At)
-| Member Name | Date       | Practice Type   | Hours | Details              | Logged At         |
-|-------------|------------|-----------------|-------|----------------------|-------------------|
-| Alex Jones  | 2024-01-15 | Private Lesson  | 1.5   | Worked on backhand   | 2024-01-15 6:05pm |
+### Practice Logs tab
+A grid with members as rows and dates as columns. Each cell contains that member's practice summary for that day, e.g.:
+```
+1 hr coach rachel, 2 hrs ata, School Practice
+```
+
+### Stats tab
+A grid with members as rows and weeks (Mon–Sun) as columns. Rebuilt automatically every hour. Shows total hours per member per week.
 
 ---
 
 ## Troubleshooting
 
-**"Connection error" in the app**
-- Double-check the URL in `src/services/api.js` matches exactly what Google gave you.
-- Make sure the Apps Script is deployed with "Anyone" access.
+**"Name not found" on login**
+- Check that the name in the Users sheet matches exactly what the member typed (spelling and capitalisation).
 
-**Changes to Code.gs not working**
-- You must create a **new deployment** after any code changes, and update the URL in the app.
+**"Connection error"**
+- Confirm the URL in `api.js` / `index.html` matches the deployed Web App URL exactly.
+- Confirm the Apps Script is deployed with "Who has access: Anyone".
 
-**App won't scan QR code**
-- Make sure iPhone and computer are on the same Wi-Fi network.
-- Try typing the URL shown in terminal manually into the Expo Go app.
+**Code.gs changes not taking effect**
+- You must create a **new deployment** after any code change — editing an existing deployment does not update the live URL.
 
-**"Username already taken" on registration**
-- Each member must use a unique name. Try first name + last initial (e.g., "AlexJ").
+**App won't load from QR code**
+- Make sure your iPhone and computer are on the same Wi-Fi network.
+- Try entering the URL shown in the terminal manually in the Expo Go app.
